@@ -30,6 +30,10 @@ async def populate_hybrid_collection(hybrid_collection_name: str, stored_points:
 
 @hook(priority=99)
 async def agent_fast_reply(cat: StrayCat) -> AgenticWorkflowOutput | None:
+    # a message blocked by guard-plugin is not worked on: its reply is the block
+    if getattr(cat.working_memory, "guard_blocked", None) == id(cat.working_memory.user_message):
+        return None
+
     user_message: str = cat.working_memory.user_message.text
     if not user_message.startswith("@hybrid"):
         return None
